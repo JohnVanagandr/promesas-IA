@@ -2,14 +2,13 @@
 
 ## Archivo a crear: `src/shared/ui/render.js`
 
-## Requerimientos
-Este será el ÚNICO archivo de todo el proyecto autorizado para modificar el DOM o imprimir en la interfaz.
+## Requerimientos y Reglas Inquebrantables
+Este es el ÚNICO archivo autorizado para imprimir información.
 
-1. Crear y exportar un objeto o clase `Renderer`.
-2. **Métodos requeridos**:
-   - `renderLoading(state)`: Muestra u oculta un indicador de carga genérico.
-   - `renderData(moduleName, data)`: Recibe el nombre del módulo (ej. "Usuarios") y la data ya formateada por el adapter. Su responsabilidad es iterar e imprimir en pantalla (o consola, según el entorno).
-   - `renderError(message)`: Muestra un mensaje de error centralizado si fallan las peticiones.
-
-## Criterios de Aceptación
-- La regla es estricta: Si el MCP utiliza `console.log`, `document.createElement`, o `innerHTML` en CUALQUIER otro archivo que no sea este, la especificación falla.
+1. Crear y exportar el método `renderData(moduleName, data)` y `renderError(message)`.
+2. **Regla estricta de impresión**: La impresión debe hacerse EXCLUSIVAMENTE a través de la consola nativa usando un simple `console.log(moduleName, data)`.
+3. **Prohibiciones absolutas**: 
+   - NO usar `JSON.stringify`.
+   - NO usar `console.dir` (ni con opciones de `depth`).
+   - NO usar `.toString()`.
+4. El motor de JavaScript se encargará de mostrar el objeto de forma interactiva en consola porque la data se le entregará completamente ensamblada y resuelta con spread operators.

@@ -1,21 +1,41 @@
-# 05 - Especificación: Punto de Entrada (Main Orchestrator)
+# 05 - Especificación: Punto de Entrada y Orquestador
 
 ## Archivo a crear: `src/main.js`
 
 ## Requerimientos
-Este es el director de orquesta. Conecta los servicios con el motor de renderizado.
+1. Implementar la función `async function bootstrap(userId)` que reciba el ID de un usuario (ej: `bootstrap(1)`).
+2. **Flujo Asíncrono y Regla de Ensamblaje Estricta**:
+   - Todo debe ocurrir dentro de un único gran bloque `try/catch`. En caso de error, enviar a `Renderer.renderError()`.
+   - Debes obtener el usuario (`getUserById`), luego sus posts (`getPostsByUser`).
+   - Para buscar los comentarios de los posts correspondientes, OBLIGATORIAMENTE debes usar `.map()` junto con `Promise.all()`.
+   - Para evitar que la consola imprima "[Array]" o promesas pendientes, **todas las promesas deben resolverse ANTES del ensamblaje final**, y debes usar EXCLUSIVAMENTE el operador Spread (`...`).
+   
+3. **Ejemplo de la estructura exigida** (el código debe seguir esta misma lógica inquebrantable):
+   ```javascript
+   // 1. Obtener datos iniciales
+   const usuario = await UserService.getUserById(userId);
+   const posts = await PostService.getPostsByUser(userId);
 
-1. Implementar una función `async function bootstrap()`.
-2. **Flujo de Promesas Limpio (Encadenamiento Secuencial/Paralelo)**:
-   - Llamar a `renderLoading(true)`.
-   - Obtener los usuarios (`UserService.getAllUsers()`).
-   - Usar el primer usuario de la lista para buscar sus posts (`PostService.getPostsByUser(user.id)`).
-   - Usar el primer post para buscar sus comentarios (`CommentService.getCommentsByPost(post.postId)`).
-   - Manejar todo el bloque dentro de un único gran `try/catch` de alto nivel.
-3. **Salida de Datos**:
-   - En cada paso exitoso, enviar los datos limpios al `Renderer.renderData()`.
-   - En el `catch`, enviar el error a `Renderer.renderError()`.
-   - En el `finally`, llamar a `renderLoading(false)`.
+   // 2. Resolver todo concurrente con map y Promise.all
+   const postsConComentarios = await Promise.all(
+     posts.map(async (post) => {
+       const comentariosResueltos = await CommentService.getCommentsByPost(post.postId);
+       // Ensamblaje nativo con spread para asegurar la expansión del array
+       return { 
+         ...post, 
+         comentarios: [ ...comentariosResueltos ] 
+       }; 
+     })
+   );
+   
+   // 3. Crear el objeto maestro final exclusivamente con spread
+   const objetoMaestro = {
+     usuario: usuario.fullName,
+     posts: [ ...postsConComentarios ]
+   };
+   
+   // 4. Impresión final
+   Renderer.renderData('Perfil Completo', objetoMaestro);
 
-## Criterios de Aceptación
-- `main.js` solo orquesta. No formatea datos (eso lo hace el adapter), no hace peticiones fetch (eso lo hace httpClient/services), y no toca el DOM (eso lo hace render). Invoca la función `bootstrap()` al final del archivo.
+   ---
+   ```
