@@ -14,4 +14,4 @@ Actúa como un arquitecto y desarrollador senior de JavaScript. He creado una ca
 - Las promesas deben resolverse por completo antes de ser introducidas en el "Objeto Maestro" para evitar registros `[Array]` o `[Promise]` en la consola.
 - Queda **absolutamente prohibido** usar `JSON.stringify()`, `toString()` o `console.dir()` en el motor de renderizado (`src/shared/ui/render.js`). Debes usar el objeto nativo.
 
-Una vez que hayas leído los archivos, procede a generar el código paso a paso y confírmame cuando hayas terminado.
+Una vez que hayas leído los archivos, procede a generar el código paso a paso y confírmame cuando hayas terminado
